@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>综采报告</title>
+<link rel="manifest" href="manifest.json">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #f5f5f5;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 15px;
+  color: #1a1a1a;
+  padding-bottom: 40px;
+}
+
+.header {
+  background: #1a6e2e;
+  color: white;
+  padding: 16px;
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.header small {
+  display: block;
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: 3px;
+  font-weight: normal;
+  letter-spacing: 0;
+}
+
+.section {
+  margin: 12px;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.sec-title {
+  background: #1a6e2e;
+  color: white;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  padding: 11px 14px;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 10px;
+}
+
+.field:last-child { border-bottom: none; }
+
+.field label {
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
+  min-width: 72px;
+  flex-shrink: 0;
+}
+
+.field input[type=text],
+.field input[type=number] {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #1a1a1a;
+  text-align: right;
+  background: transparent;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  min-width: 0;
+  padding: 2px 0;
+}
+
+.field textarea {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  color: #1a1a1a;
+  background: transparent;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  resize: none;
+  min-height: 56px;
+  line-height: 1.6;
+  padding: 2px 0;
+}
+
+.field input[type=checkbox] {
+  width: 20px;
+  height: 20px;
+  accent-color: #1a6e2e;
+  flex-shrink: 0;
+}
+
+.two {
+  display: flex;
+  border-bottom: 1px solid #f0f0f0;
+}
+.two:last-child { border-bottom: none; }
+.two .half {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 11px 14px;
+  gap: 8px;
+}
+.two .half:first-child { border-right: 1px solid #f0f0f0; }
+.two .half label {
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.two .half input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #1a1a1a;
+  text-align: right;
+  background: transparent;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  min-width: 0;
+}
+
+.hint {
+  font-size: 11px;
+  color: #999;
+  padding: 7px 14px;
+  background: #fafafa;
+  border-top: 1px solid #f0f0f0;
+}
+
+.submit-btn {
+  display: block;
+  width: calc(100% - 24px);
+  margin: 0 12px;
+  padding: 15px;
+  background: #1a6e2e;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+.result-page { display: none; padding: 12px; }
+
+.result-box {
+  background: #1a1a2e;
+  border-radius: 10px;
+  padding: 18px;
+  color: #e0e0e0;
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 2.2;
+  margin-bottom: 14px;
+  word-break: break-all;
+  user-select: all;
+  -webkit-user-select: all;
+}
+
+.copy-tip {
+  text-align: center;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 10px;
+  background: #fff3cd;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.back-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: #666;
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: center;
+  margin-top: 10px;
+  letter-spacing: 1px;
+}
+</style>
+</head>
+<body>
+
+<div id="formPage">
+<div class="header">
+  ⛏ 综采机班次报告
+  <small>填写数据后点击生成报告</small>
+</div>
+
+<div class="section">
+  <div class="sec-title">基本信息</div>
+  <div class="two">
+    <div class="half"><label>日期</label><input type="text" id="date" value="3月21日"></div>
+    <div class="half"><label>班次</label><input type="text" id="shift" value="16点班"></div>
+  </div>
+  <div class="field">
+    <label>机器编号</label>
+    <input type="text" id="machine" value="3号综采机">
+  </div>
+  <div class="two">
+    <div class="half"><label>司机1</label><input type="text" id="d1" value="杜伟青"></div>
+    <div class="half"><label>司机2</label><input type="text" id="d2" value="王生昕"></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-title">安全检查</div>
+  <div class="field">
+    <input type="checkbox" id="fire" checked>
+    <label for="fire" style="min-width:unset">灭火器正常</label>
+  </div>
+  <div class="field">
+    <label>本班故障</label>
+    <input type="text" id="fault" value="无">
+  </div>
+  <div class="field" style="align-items:flex-start">
+    <label style="padding-top:3px">检查维护</label>
+    <textarea id="maint">接班检查清理机器 0.5小时，调整大皮带跑偏加油0.5小时。</textarea>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-title">运转时间</div>
+  <div class="two">
+    <div class="half"><label>起始</label><input type="number" id="rs" value="3328" inputmode="numeric"></div>
+    <div class="half"><label>结束</label><input type="number" id="re" value="3335" inputmode="numeric"></div>
+  </div>
+  <div class="hint">运转时间 = 结束 − 起始（自动计算）</div>
+</div>
+
+<div class="section">
+  <div class="sec-title">换刀头</div>
+  <div class="field">
+    <label>数量（个）</label>
+    <input type="number" id="blades" value="0" min="0" inputmode="numeric">
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-title">采矿数据</div>
+  <div class="two">
+    <div class="half"><label>矿区</label><input type="text" id="zone" value="C区"></div>
+    <div class="half"><label>区段(米)</label><input type="number" id="zp" value="230" inputmode="numeric"></div>
+  </div>
+  <div class="field">
+    <label>采矿(米)</label>
+    <input type="number" id="mm" value="1610" inputmode="numeric">
+  </div>
+  <div class="field">
+    <label>换算系数</label>
+    <input type="number" id="coeff" value="2.384" step="0.001" inputmode="decimal">
+  </div>
+  <div class="hint">产量(吨) = 采矿米数 × 换算系数</div>
+</div>
+
+<br>
+<button class="submit-btn" onclick="gen()">📋 生成报告</button>
+<br><br>
+</div>
+
+<div class="result-page" id="rPage">
+<div class="header">
+  ⛏ 综采机班次报告
+  <small>长按文字可全选复制</small>
+</div>
+<br>
+<div class="copy-tip">👆 长按下方黑色区域文字 → 全选 → 复制</div>
+<div class="result-box" id="rBox"></div>
+<button class="submit-btn" onclick="tryCopy()">📋 点击复制</button>
+<button class="back-btn" onclick="goBack()">← 返回修改</button>
+</div>
+
+<script>
+function gen() {
+  var date = document.getElementById('date').value;
+  var shift = document.getElementById('shift').value;
+  var machine = document.getElementById('machine').value;
+  var d1 = document.getElementById('d1').value;
+  var d2 = document.getElementById('d2').value;
+  var fire = document.getElementById('fire').checked ? '正常' : '异常';
+  var fault = document.getElementById('fault').value;
+  var maint = document.getElementById('maint').value;
+  var rs = document.getElementById('rs').value;
+  var re = document.getElementById('re').value;
+  var rt = (parseFloat(re)||0) - (parseFloat(rs)||0);
+  var blades = document.getElementById('blades').value;
+  var zone = document.getElementById('zone').value;
+  var zp = document.getElementById('zp').value;
+  var mm = document.getElementById('mm').value;
+  var tons = Math.round((parseFloat(mm)||0) * (parseFloat(document.getElementById('coeff').value)||0));
+
+  var t = date+'  '+machine+' '+shift+'\n'
+        +'司机：'+d1+'  '+d2+'\n'
+        +'1：灭火器'+fire+'\n'
+        +'2：'+maint+'\n'
+        +'3：本班故障：'+fault+'\n'
+        +'4：机器运转时间：'+rs+'-'+re+'（共'+rt+'小时）\n'
+        +'5：换刀头：'+blades+'个\n'
+        +'6：矿区'+zone+zp+'米区，采矿'+mm+'米  大约'+tons+'吨';
+
+  document.getElementById('rBox').innerText = t;
+  document.getElementById('formPage').style.display = 'none';
+  document.getElementById('rPage').style.display = 'block';
+  window.scrollTo(0,0);
+}
+
+function tryCopy() {
+  var el = document.getElementById('rBox');
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(el.innerText).then(function(){ alert('复制成功！'); });
+  } else {
+    var s = window.getSelection();
+    var r = document.createRange();
+    r.selectNodeContents(el);
+    s.removeAllRanges();
+    s.addRange(r);
+    alert('已选中文字，请长按选择"复制"');
+  }
+}
+
+function goBack() {
+  document.getElementById('rPage').style.display = 'none';
+  document.getElementById('formPage').style.display = 'block';
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
