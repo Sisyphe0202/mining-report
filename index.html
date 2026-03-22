@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="综采报告">
+<meta name="theme-color" content="#0d1117">
+<title>综采报告</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2128;
+    --border: #30363d;
+    --accent: #f0a500;
+    --accent2: #e85d04;
+    --text: #e6edf3;
+    --text-dim: #7d8590;
+    --green: #3fb950;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans SC', sans-serif;
+    min-height: 100vh;
+    font-size: 15px;
+  }
+
+  /* TOP NAV */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    padding-top: max(14px, env(safe-area-inset-top));
+  }
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .topbar-icon {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  .topbar h1 { font-size: 15px; font-weight: 700; }
+  .topbar p { font-size: 11px; color: var(--text-dim); margin-top: 1px; }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 73px;
+    z-index: 99;
+  }
+
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 12px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    user-select: none;
+  }
+
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* PAGES */
+  .page { display: none; padding: 16px; padding-bottom: 100px; }
+  .page.active { display: block; }
+
+  /* SECTION */
+  .section { margin-bottom: 20px; }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .field-row {
+    display: flex;
+    align-items: center;
+    padding: 13px 14px;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+  }
+
+  .field-row:last-child { border-bottom: none; }
+
+  .field-row.two-col { gap: 0; padding: 0; }
+  .field-row.two-col .half {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 13px 14px;
+    gap: 12px;
+  }
+  .field-row.two-col .half:first-child {
+    border-right: 1px solid var(--border);
+  }
+
+  .field-label {
+    font-size: 13px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    min-width: 80px;
+    flex-shrink: 0;
+  }
+
+  .field-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 14px;
+    text-align: right;
+    min-width: 0;
+  }
+
+  .field-input::placeholder { color: var(--text-dim); opacity: 0.5; }
+
+  .field-input.mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--green);
+    font-weight: 600;
+  }
+
+  .field-input[readonly] {
+    color: var(--green);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+  }
+
+  textarea.field-input {
+    resize: none;
+    text-align: left;
+    line-height: 1.6;
+    min-height: 60px;
+    padding-top: 2px;
+  }
+
+  /* CHECKBOX */
+  .check-row {
+    display: flex;
+    align-items: center;
+    padding: 13px 14px;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .check-row:last-child { border-bottom: none; }
+
+  .check-row input[type=checkbox] {
+    width: 20px; height: 20px;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .check-row label {
+    font-size: 14px;
+    color: var(--text);
+    cursor: pointer;
+    flex: 1;
+  }
+
+  /* CALC BADGE */
+  .badge {
+    font-size: 10px;
+    background: rgba(63,185,80,0.12);
+    color: var(--green);
+    border: 1px solid rgba(63,185,80,0.25);
+    border-radius: 4px;
+    padding: 1px 6px;
+    white-space: nowrap;
+  }
+
+  .hint {
+    font-size: 11px;
+    color: var(--text-dim);
+    padding: 8px 14px;
+    background: rgba(240,165,0,0.05);
+    border-top: 1px solid var(--border);
+  }
+
+  /* OUTPUT PAGE */
+  .output-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 2.1;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-bottom: 16px;
+  }
+
+  .output-card .hl { color: var(--accent); font-weight: 700; }
+  .output-card .dim { color: var(--text-dim); }
+
+  /* COPY BTN */
+  .copy-btn-big {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #000;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Noto Sans SC', sans-serif;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: opacity 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .copy-btn-big:active { opacity: 0.8; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--green);
+    color: #000;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px 28px;
+    border-radius: 30px;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    z-index: 999;
+    white-space: nowrap;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* safe area bottom */
+  .safe-bottom {
+    height: env(safe-area-inset-bottom, 16px);
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-icon">⛏</div>
+    <div>
+      <h1>综采机班次报告</h1>
+      <p>自动计算 · 一键复制</p>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab(0)">📝 填写</div>
+  <div class="tab" onclick="switchTab(1)">⚡ 计算</div>
+  <div class="tab" onclick="switchTab(2)">📋 报告</div>
+</div>
+
+<!-- PAGE 0: 基本 + 安全 -->
+<div class="page active" id="page0">
+
+  <div class="section">
+    <div class="section-title">基本信息</div>
+    <div class="card">
+      <div class="field-row two-col">
+        <div class="half">
+          <span class="field-label">日期</span>
+          <input class="field-input" type="text" id="date" value="3月21日" oninput="render()">
+        </div>
+        <div class="half">
+          <span class="field-label">班次</span>
+          <input class="field-input" type="text" id="shift" value="16点班" oninput="render()">
+        </div>
+      </div>
+      <div class="field-row">
+        <span class="field-label">机器编号</span>
+        <input class="field-input" type="text" id="machine" value="3号综采机" oninput="render()">
+      </div>
+      <div class="field-row two-col">
+        <div class="half">
+          <span class="field-label">司机1</span>
+          <input class="field-input" type="text" id="driver1" value="杜伟青" oninput="render()">
+        </div>
+        <div class="half">
+          <span class="field-label">司机2</span>
+          <input class="field-input" type="text" id="driver2" value="王生昕" oninput="render()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">安全检查</div>
+    <div class="card">
+      <div class="check-row">
+        <input type="checkbox" id="fire" checked onchange="render()">
+        <label for="fire">灭火器正常</label>
+      </div>
+      <div class="field-row">
+        <span class="field-label">本班故障</span>
+        <input class="field-input" type="text" id="fault" value="无" oninput="render()">
+      </div>
+      <div class="field-row" style="align-items:flex-start">
+        <span class="field-label" style="padding-top:2px">检查维护</span>
+        <textarea class="field-input" id="maintenance" oninput="render()">接班检查清理机器 0.5小时，调整大皮带跑偏加油0.5小时。</textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">换刀头</div>
+    <div class="card">
+      <div class="field-row">
+        <span class="field-label">数量（个）</span>
+        <input class="field-input" type="number" id="blades" value="0" min="0" inputmode="numeric" oninput="render()">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- PAGE 1: 计算 -->
+<div class="page" id="page1">
+
+  <div class="section">
+    <div class="section-title">运转时间 <span class="badge">自动计算</span></div>
+    <div class="card">
+      <div class="field-row two-col">
+        <div class="half">
+          <span class="field-label">起始</span>
+          <input class="field-input mono" type="number" id="runStart" value="3328" inputmode="numeric" oninput="calcRun()">
+        </div>
+        <div class="half">
+          <span class="field-label">结束</span>
+          <input class="field-input mono" type="number" id="runEnd" value="3335" inputmode="numeric" oninput="calcRun()">
+        </div>
+      </div>
+      <div class="field-row">
+        <span class="field-label">运转时间</span>
+        <input class="field-input" type="text" id="runTime" readonly placeholder="自动计算">
+      </div>
+      <div class="hint">结束读数 − 起始读数 = 本班运转小时数</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">采矿产量 <span class="badge">自动计算</span></div>
+    <div class="card">
+      <div class="field-row two-col">
+        <div class="half">
+          <span class="field-label">矿区</span>
+          <input class="field-input" type="text" id="zone" value="C区" oninput="calcMining()">
+        </div>
+        <div class="half">
+          <span class="field-label">区段(米)</span>
+          <input class="field-input mono" type="number" id="zonePos" value="230" inputmode="numeric" oninput="calcMining()">
+        </div>
+      </div>
+      <div class="field-row">
+        <span class="field-label">采矿(米)</span>
+        <input class="field-input mono" type="number" id="mineMeters" value="1610" inputmode="numeric" oninput="calcMining()">
+      </div>
+      <div class="field-row">
+        <span class="field-label">换算系数</span>
+        <input class="field-input mono" type="number" id="tonPerMeter" value="2.384" step="0.001" inputmode="decimal" oninput="calcMining()">
+      </div>
+      <div class="field-row">
+        <span class="field-label">本班产量</span>
+        <input class="field-input" type="text" id="tonOutput" readonly placeholder="自动计算">
+      </div>
+      <div class="hint">产量（吨）= 采矿米数 × 换算系数</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- PAGE 2: 报告 -->
+<div class="page" id="page2">
+  <div class="output-card" id="outputBox"></div>
+  <button class="copy-btn-big" onclick="copyText()">
+    <span>📋</span> 复制报告文本
+  </button>
+  <div class="safe-bottom"></div>
+</div>
+
+<div class="toast" id="toast">✓ 已复制到剪贴板</div>
+
+<script>
+  const tabEls = document.querySelectorAll('.tab');
+  const pageEls = document.querySelectorAll('.page');
+
+  function switchTab(i) {
+    tabEls.forEach((t, idx) => t.classList.toggle('active', idx === i));
+    pageEls.forEach((p, idx) => p.classList.toggle('active', idx === i));
+    if (i === 2) render();
+  }
+
+  function calcRun() {
+    const s = parseFloat(document.getElementById('runStart').value) || 0;
+    const e = parseFloat(document.getElementById('runEnd').value) || 0;
+    const diff = e - s;
+    document.getElementById('runTime').value = diff >= 0 ? diff + ' 小时' : '数据有误';
+    render();
+  }
+
+  function calcMining() {
+    const meters = parseFloat(document.getElementById('mineMeters').value) || 0;
+    const coeff = parseFloat(document.getElementById('tonPerMeter').value) || 0;
+    const tons = Math.round(meters * coeff);
+    document.getElementById('tonOutput').value = tons + ' 吨';
+    render();
+  }
+
+  function g(id) { return document.getElementById(id).value.trim(); }
+
+  function getPlainText() {
+    const fire = document.getElementById('fire').checked ? '正常' : '异常';
+    return [
+      `${g('date')}  ${g('machine')} ${g('shift')}`,
+      `司机：${g('driver1')}  ${g('driver2')}`,
+      `1：灭火器${fire}`,
+      `2：${g('maintenance')}`,
+      `3：本班故障：${g('fault')}`,
+      `4：机器运转时间：${g('runStart')}-${g('runEnd')}（共${g('runTime')}）`,
+      `5：换刀头：${g('blades')}个`,
+      `6：矿区${g('zone')}${g('zonePos')}米区，采矿${g('mineMeters')}米  大约${g('tonOutput')}`,
+    ].join('\n');
+  }
+
+  function render() {
+    const fire = document.getElementById('fire').checked ? '正常' : '异常';
+    const lines = [
+      { text: `${g('date')}  ${g('machine')} ${g('shift')}`, cls: 'hl' },
+      { text: `司机：${g('driver1')}  ${g('driver2')}`, cls: 'dim' },
+      { text: `1：灭火器${fire}` },
+      { text: `2：${g('maintenance')}` },
+      { text: `3：本班故障：${g('fault')}` },
+      { text: `4：机器运转时间：${g('runStart')}-${g('runEnd')}（共${g('runTime')}）` },
+      { text: `5：换刀头：${g('blades')}个` },
+      { text: `6：矿区${g('zone')}${g('zonePos')}米区，采矿${g('mineMeters')}米  大约${g('tonOutput')}` },
+    ];
+
+    document.getElementById('outputBox').innerHTML = lines.map(l => {
+      const e = l.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      return l.cls ? `<span class="${l.cls}">${e}</span>` : `<span>${e}</span>`;
+    }).join('\n');
+  }
+
+  function copyText() {
+    const text = getPlainText();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(showToast);
+    } else {
+      // fallback
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast();
+    }
+  }
+
+  function showToast() {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  // init
+  calcRun();
+  calcMining();
+</script>
+</body>
+</html>
