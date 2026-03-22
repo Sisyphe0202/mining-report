@@ -1,0 +1,22 @@
+{
+  "name": "综采报告",
+  "short_name": "综采报告",
+  "description": "综采机班次报告生成工具",
+  "start_url": "/mining-report/",
+  "display": "standalone",
+  "background_color": "#f5f5f5",
+  "theme_color": "#1a6e2e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Pick/3D/pick_3d.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Pick/3D/pick_3d.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
